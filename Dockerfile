@@ -1,10 +1,22 @@
 FROM golang:alpine
-MAINTAINER "Abdul Rahman Yusmadi <amanyus@gmail.com>"
+
+RUN apk update && \
+    apk add --update \
+        git \
+        bash \
+        openssh \
+        py-pip && \
+    apk add --virtual=build \
+        gcc \
+        libffi-dev \
+        musl-dev \
+        openssl-dev \
+        python-dev \
+        make
+
+# Build Terraform
 
 ENV TERRAFORM_VERSION=0.11.13
-
-RUN apk add --update git bash openssh
-
 ENV TF_DEV=true
 ENV TF_RELEASE=true
 
@@ -14,3 +26,10 @@ RUN git clone https://github.com/hashicorp/terraform.git ./ && \
     /bin/bash scripts/build.sh
 
 WORKDIR $GOPATH
+
+# Install Azure CLI
+
+RUN \
+  pip install azure-cli && \
+  apk del --purge build
+  
