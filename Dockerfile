@@ -16,7 +16,7 @@ RUN apk update && \
 
 # Build Terraform
 
-ENV TERRAFORM_VERSION=0.11.13
+ENV TERRAFORM_VERSION=0.11.12
 ENV TF_DEV=true
 ENV TF_RELEASE=true
 
