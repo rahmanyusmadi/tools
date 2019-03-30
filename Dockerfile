@@ -14,7 +14,7 @@ RUN apk update && \
         python-dev \
         make
 
-# Build Terraform
+# Build Terraform - https://hub.docker.com/r/hashicorp/terraform/dockerfile
 
 ENV TERRAFORM_VERSION=0.11.13
 ENV TF_DEV=true
@@ -35,7 +35,7 @@ RUN \
   
 ENV KUBE_LATEST_VERSION="v1.14.0"
 
-# Install kubectl
+# Install kubectl - https://github.com/lachie83/k8s-kubectl
 
 RUN apk add --update ca-certificates \
  && apk add --update -t deps curl \
