@@ -1,22 +1,11 @@
 FROM golang:alpine
 
-RUN apk update && \
-    apk add --update \
-        git \
-        bash \
-        openssh \
-        py-pip && \
-    apk add --virtual=build \
-        gcc \
-        libffi-dev \
-        musl-dev \
-        openssl-dev \
-        python-dev \
-        make
-
 # Build Terraform - https://hub.docker.com/r/hashicorp/terraform/dockerfile
 
 ENV TERRAFORM_VERSION=0.11.13
+
+RUN apk add --no-cache --update git bash openssh
+
 ENV TF_DEV=true
 ENV TF_RELEASE=true
 
@@ -29,17 +18,31 @@ WORKDIR $GOPATH
 
 # Install Azure CLI
 
-RUN \
-  pip install azure-cli && \
-  apk del --purge build
+RUN apk update \
+ && apk add --no-cache --update \
+        py-pip \
+ && apk add --no-cache --virtual=terraform_dependencies \
+        gcc \
+        libffi-dev \
+        musl-dev \
+        openssl-dev \
+        python-dev \
+        make \
+ && pip install azure-cli
   
-ENV KUBE_LATEST_VERSION="v1.14.0"
-
 # Install kubectl - https://github.com/lachie83/k8s-kubectl
 
-RUN apk add --update ca-certificates \
- && apk add --update -t deps curl \
- && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
- && chmod +x /usr/local/bin/kubectl \
- && apk del --purge deps \
+# ENV KUBE_LATEST_VERSION="v1.14.0"
+
+# RUN apk add --no-cache --update ca-certificates curl \
+#  && apk add --no-cache --update --virtual=kubectl_dependencies \
+#  && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
+#  && chmod +x /usr/local/bin/kubectl
+
+RUN az aks install-cli
+
+# Cleanup
+
+RUN apk del --purge terraform_dependencies \
+ && apk del --purge kubectl_dependencies \
  && rm /var/cache/apk/*
