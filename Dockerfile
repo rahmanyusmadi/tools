@@ -4,7 +4,7 @@ FROM golang:alpine
 
 ENV TERRAFORM_VERSION=0.11.13
 
-RUN apk add --no-cache --update git bash openssh
+RUN apk add --no-cache --update git bash openssh curl
 
 ENV TF_DEV=true
 ENV TF_RELEASE=true
@@ -44,5 +44,4 @@ RUN az aks install-cli
 # Cleanup
 
 RUN apk del --purge terraform_dependencies \
- && apk del --purge kubectl_dependencies \
  && rm /var/cache/apk/*
