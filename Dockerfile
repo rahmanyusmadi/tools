@@ -1,47 +1,23 @@
-FROM golang:alpine
+# re-use infra-core
+FROM alpine:latest
 
-# Build Terraform - https://hub.docker.com/r/hashicorp/terraform/dockerfile
+RUN apk update && \
+    apk add --no-cache make jq python py-pip openssh-client unzip git gcc libffi-dev musl-dev openssl-dev python-dev curl bash python3 openssl docker sudo ca-certificates && \
+	  curl -o /tmp/terraform.zip -L "https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip" && \
+    echo "5925cd4d81e7d8f42a0054df2aafd66e2ab7408dbed2bd748f0022cfe592f8d2  /tmp/terraform.zip" > /tmp/terraform.sha256sum && \
+    sha256sum -cs /tmp/terraform.sha256sum && \
+    unzip /tmp/terraform.zip && \
+    mv terraform /bin && \
+    rm /tmp/terraform.* && \
+	  rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
+	  pip install --upgrade pip && \
+    pip install azure-cli  && \
+    echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    pip install --upgrade ansible openshift && \
+    mkdir -p /var/lib/jenkins/.ansible/tmp && \
+    mkdir -p /home/jenkins/.ansible/tmp && \
+    chmod 777 -R /var/lib/jenkins/.ansible && \
+    chmod 777 -R /home/jenkins/.ansible
 
-ENV TERRAFORM_VERSION=0.11.13
-
-RUN apk add --no-cache --update git bash openssh curl
-
-ENV TF_DEV=true
-ENV TF_RELEASE=true
-
-WORKDIR $GOPATH/src/github.com/hashicorp/terraform
-RUN git clone https://github.com/hashicorp/terraform.git ./ && \
-    git checkout v${TERRAFORM_VERSION} && \
-    /bin/bash scripts/build.sh
-
-WORKDIR $GOPATH
-
-# Install Azure CLI
-
-RUN apk update \
- && apk add --no-cache --update \
-        py-pip \
- && apk add --no-cache --virtual=terraform_dependencies \
-        gcc \
-        libffi-dev \
-        musl-dev \
-        openssl-dev \
-        python-dev \
-        make \
- && pip install azure-cli
-  
-# Install kubectl - https://github.com/lachie83/k8s-kubectl
-
-# ENV KUBE_LATEST_VERSION="v1.14.0"
-
-# RUN apk add --no-cache --update ca-certificates curl \
-#  && apk add --no-cache --update --virtual=kubectl_dependencies \
-#  && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
-#  && chmod +x /usr/local/bin/kubectl
-
-RUN az aks install-cli
-
-# Cleanup
-
-RUN apk del --purge terraform_dependencies \
- && rm /var/cache/apk/*
+ADD https://storage.googleapis.com/kubernetes-release/release/v1.6.4/bin/linux/amd64/kubectl /usr/local/bin/kubectl
+RUN chmod +x /usr/local/bin/kubectl
