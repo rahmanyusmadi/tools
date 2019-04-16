@@ -1,5 +1,5 @@
 # re-use infra-core
-FROM alpine:latest
+FROM alpine:20190228
 
 RUN apk update && \
     apk add --no-cache make jq python py-pip openssh-client unzip git gcc libffi-dev musl-dev openssl-dev python-dev curl bash python3 openssl docker sudo ca-certificates && \
