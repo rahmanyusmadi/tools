@@ -3,8 +3,8 @@ FROM alpine:20190228
 
 RUN apk update && \
     apk add --no-cache make jq python py-pip openssh-client unzip git gcc libffi-dev musl-dev openssl-dev python-dev curl bash python3 openssl docker sudo ca-certificates && \
-	  curl -o /tmp/terraform.zip -L "https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip" && \
-    echo "5925cd4d81e7d8f42a0054df2aafd66e2ab7408dbed2bd748f0022cfe592f8d2  /tmp/terraform.zip" > /tmp/terraform.sha256sum && \
+	  curl -o /tmp/terraform.zip -L "https://releases.hashicorp.com/terraform/0.11.14/terraform_0.11.14_linux_amd64.zip" && \
+    echo "9b9a4492738c69077b079e595f5b2a9ef1bc4e8fb5596610f69a6f322a8af8dd  /tmp/terraform.zip" > /tmp/terraform.sha256sum && \
     sha256sum -cs /tmp/terraform.sha256sum && \
     unzip /tmp/terraform.zip && \
     mv terraform /bin && \
